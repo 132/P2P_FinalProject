@@ -1,10 +1,13 @@
 import java.util.Random;
 
+import peersim.core.Node;
+import peersim.core.Protocol;
+
 /*
  * At each round of the protocol decides at random to generate a transaction 
  * Random target and random the amount
  */
-public class Nodes {
+public class basicNodes{
 	private Integer IdOfNode;
 	private Double TheAmountOfNode;
 	
@@ -14,13 +17,6 @@ public class Nodes {
 		Random AmountOfTransaction = new Random();
 		Random TargetNode = new Random();
 		
-		
-		if(TheAmountOfNode < AmountOfTransaction.nextDouble()) {
-			Transaction newTrans = new Transaction();
-			// implemete
-		}else {
-			System.out.println("The amount of Transaction is greater than its own");
-		}
+	
 	}
-
 }

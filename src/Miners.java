@@ -1,6 +1,6 @@
 // choosing kind of miners => the probability of Power
 
-public class Miners extends Nodes {
+public class Miners extends basicNodes {
 	public String KindOfMiners;
 	public double PowerOfMiners;
 	public Miners() {
