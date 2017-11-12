@@ -16,6 +16,8 @@ public class Block {
 	
 	public Hashtable<String, Transaction> Trans;			// ListOfTrans
 	
+	boolean sent = false;
+	
 	public Block(Integer pID, Integer mID, Hashtable<String, Transaction> T) {
 		this.MinerID = mID;
 		this.Trans = T;
@@ -29,6 +31,8 @@ public class Block {
 		this.ID = NoBlock;
 		NoBlock++;
 	}
+	
+	public Block() {}
 	
 	public void addpreBlock(Integer pID) {
 		this.previousID = pID;
@@ -51,6 +55,13 @@ public class Block {
 	
 	public double getAllReward() {
 		return Reward + getRewardFromTransactions();
+	}
+	
+	public boolean containTransaction(Transaction in) {
+		if(Trans.contains(in))
+			return true;
+		else 
+			return false;
 	}
 	
 	// latency increase due to increasing block size, the block propagation time is increased 

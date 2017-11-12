@@ -7,6 +7,9 @@ public class Transaction {
 	Double AmountSpending;	// Amount of spending
 	
 	String IDtrans;
+	
+	boolean sent = false;
+	
 	public Transaction(Node iID, Node oID, Double a, String IDtr) {
 		this.InputID = iID;
 		this.OutputID = oID;
@@ -14,8 +17,7 @@ public class Transaction {
 		this.IDtrans = IDtr;
 	}
 	
-	public boolean checkTrans() {
-		//(this.InputID)
-		return true;
+	public String getID() {
+		return IDtrans;
 	}
 }
