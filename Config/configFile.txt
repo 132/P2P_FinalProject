@@ -1,40 +1,25 @@
-
-# network size
-SIZE 1000
-# parameters of periodic execution
-CYCLES 100
-CYCLE SIZE*10000
-
-DEGREE 22 # ----
-
+SIZE 20									    # network size
+CYCLES 20									#
+CYCLE 10									# 
+MINDELAY 0
+MAXDELAY 100
+DROP 0										# drop is a probability, 0<=DROP<=1
 ###################################################################
-# Parameters 
 #- # of selfish miners 
 #- Computational power of selfish miners 
 #- the interval of time between generation of 2 consecutive blocks
 #- The latencies between the nodes of the TinyCoin network
 
-TheNumberSelfishMiners 100
-ComputationalPower 100
-TimeGenerationConsecutiveBlocks 100
-TheLatenciesNodes 100
-
+ThePercentSelfishMiners 10
+ComputationalPower 1						# did not implement it 
+TimeGenerationConsecutiveBlocks 20			# Time should be less than
+TheLatenciesNodes 10						# The latency Nodes less than 
 #####################################################################
-
-# parameters of message transfer
-# delay values here are relative to cycle length, in percentage,
-# eg 50 means half the cycle length, 200 twice the cycle length, etc.
-MINDELAY 0
-MAXDELAY 0
-# drop is a probability, 0<=DROP<=1
-DROP 0
-
-
 random.seed 1234567890
 network.size SIZE
-simulation.endtime CYCLE*CYCLES		# tell that when the simulation when to stop
+simulation.endtime CYCLES*CYCLE							# tell that when the simulation when to stop
 simulation.logtime CYCLE
-
+						
 ################### protocols ===========================
 # config tinyProtocol protocol
 # overlay network (link)
@@ -42,30 +27,32 @@ simulation.logtime CYCLE
 
 protocol.link peersim.core.IdleProtocol					# generate link nodes neighbor
 
-protocol.urt UniformRandomTransport
+protocol.urt weightedTransportTinyCoin
 protocol.urt.mindelay (CYCLE*MINDELAY)/100
 protocol.urt.maxdelay (CYCLE*MAXDELAY)/100
+protocol.urt.deplayNodes TheLatenciesNodes
 
 protocol.tr UnreliableTransport
 protocol.tr.transport urt
 protocol.tr.drop DROP
 
-protocol.tinyProtocol protocolTinyCoin							# assign avg = a function in example
-protocol.tinyProtocol.linkable link						# contain of links
-protocol.tinyProtocol.step CYCLE						# scheduling parameter familiar from cycle based model
+protocol.tinyProtocol protocolTinyCoin						# assign protocol
+protocol.tinyProtocol.linkable link							# contain of links
+protocol.tinyProtocol.step CYCLE							# scheduling parameter familiar from cycle based model
 protocol.tinyProtocol.transport tr
 
 
 ################### initialization ======================
 # 
-init.rndlink WireKOut									# random connections
-init.rndlink.k 20										# degree of random connection of nodes 
-init.rndlink.protocol link								# link indicate to the protocol above
+init.rndlink WireKOut										# random connections
+init.rndlink.k 1											# degree of random connection of nodes 
+init.rndlink.protocol link									# link indicate to the protocol above
 
-init.vals InitTinyCoin									# LinearDistribution should be replaced by another code (the initialization of model)
-init.vals.protocol tinyProtocol
-init.vals.max SIZE										
-init.vals.min 1
+init.initTiny InitTinyCoin									# call init
+init.initTiny.protocol tinyProtocol							# choose protocol
+init.initTiny.percentageOfSelfish ThePercentSelfishMiners	# add para
+init.initTiny.selfishPower ComputationalPower				# assume that the power from 1 -> 3
+
 
 # specific to the event based model for scheduling the periodic call of the cycle based interface
 # It is responsible for scheduling the periodic call of the cycle basd interface (nextCycle)
@@ -79,19 +66,14 @@ init.sch.randstart										# random point in time between 0 and CYCLE
 
 ################ control ==============================
 
-# selects which initializers are allowed to run.
-# NOTE the default order is according to alphabetical order of names ( in case no include property)
-# include.init rnd lin									# use rnd and lin from the initialization
-
-
 # control is oracle
-control.0 SingleValueObserver							# an Observer to monitor the change of model
-control.0.protocol tinyProtocol							# this Observer also uses the protocol
-control.0.step CYCLE									# specify the tep parameter -> how often this control is called
-														# O.W it will be the same with Cycle-driven
+control.oracle Oracle											# assign the Oracle
+control.oracle.protocol tinyProtocol							# choose the protocol
+control.oracle.step CYCLE										# oracle is called per CYCLE
+control.oracle.delayBlockTime TimeGenerationConsecutiveBlocks	# time per block
 
-
-
-
-
+# Observer to write the number of Fork and Time
+control.obser observerTinyCoin
+control.obser.protocol tinyProtocol
+control.obser.step CYCLES										# time call observer
 
