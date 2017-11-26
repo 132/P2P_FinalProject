@@ -4,13 +4,10 @@ import peersim.core.Node;
 public class Transaction {
 	Node InputID;	// ID of user
 	Node OutputID;	// ID of target account
-	Double AmountSpending;	// Amount of spending
-	
+	int AmountSpending;	// Amount of spending
 	String IDtrans;
 	
-	boolean sent = false;
-	
-	public Transaction(Node iID, Node oID, Double a, String IDtr) {
+	public Transaction(Node iID, Node oID, int a, String IDtr) {
 		this.InputID = iID;
 		this.OutputID = oID;
 		this.AmountSpending = a;

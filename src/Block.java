@@ -10,30 +10,37 @@ public class Block {
 	public Integer ID;									 // block header
 	public Integer previousID;							 // previous block header
 	
-	static double Reward = 10; 								 // Constant reward (doesnot decrease over time)
-	static double RewardTrans = 0.1;					 // values is rewarded to the miner for each transaction
-	static double LatencyTrans = 10;							// the latency of the block
+	static Integer Reward = 10; 								 // Constant reward (doesnot decrease over time)
+	static Integer RewardTrans = 1;					 // values is rewarded to the miner for each transaction
+	static Integer LatencyTrans = 1;							// the latency of the block
 	
-	public Hashtable<String, Transaction> Trans;			// ListOfTrans
+	Hashtable<String, Transaction> Trans;			// ListOfTrans
 	
 	boolean sent = false;
 	
+	public Block(Integer currID, Integer pID, Integer mID, Hashtable<String, Transaction> T) {
+		this.MinerID = mID;
+		this.Trans = T;
+		this.previousID = pID;
+		this.ID = currID;
+	}
+	
 	public Block(Integer pID, Integer mID, Hashtable<String, Transaction> T) {
+		NoBlock++;
 		this.MinerID = mID;
 		this.Trans = T;
 		this.previousID = pID;
 		this.ID = NoBlock;
-		NoBlock++;
+
 	}
 	public Block(Integer mID, Hashtable<String, Transaction> T) {
+		NoBlock++;
 		this.MinerID = mID;
 		this.Trans = T;
 		this.ID = NoBlock;
-		NoBlock++;
+		
 	}
-	
-	public Block() {}
-	
+
 	public void addpreBlock(Integer pID) {
 		this.previousID = pID;
 	}
@@ -45,20 +52,22 @@ public class Block {
 		this.previousID = in.ID;
 	}
 	
-	public double getLatency() {
+	public Integer getLatency() {
 		return Trans.size()*LatencyTrans;
 	}
 	
-	public double getRewardFromTransactions() {
+	public Integer getRewardFromTransactions() {
 		return Trans.size()*RewardTrans;
 	}
 	
-	public double getAllReward() {
+	public Integer getAllReward() {
 		return Reward + getRewardFromTransactions();
 	}
 	
 	public boolean containTransaction(Transaction in) {
-		if(Trans.contains(in))
+		if(Trans.isEmpty())
+			return false;		
+		else if(Trans.contains(in))
 			return true;
 		else 
 			return false;
