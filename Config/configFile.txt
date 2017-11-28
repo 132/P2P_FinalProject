@@ -1,23 +1,25 @@
 SIZE 20									    # network size
-CYCLES 20									#
+TOTALCYCLES 400								#
+OBSERVERCYCLES 400-1
 CYCLE 10									# 
 MINDELAY 0
 MAXDELAY 100
 DROP 0										# drop is a probability, 0<=DROP<=1
+DEGREE 1
 ###################################################################
 #- # of selfish miners 
 #- Computational power of selfish miners 
 #- the interval of time between generation of 2 consecutive blocks
 #- The latencies between the nodes of the TinyCoin network
 
-ThePercentSelfishMiners 10
-ComputationalPower 1						# did not implement it 
+ThePercentSelfishMiners 30
+ComputationalPower 6						# did not implement it 
 TimeGenerationConsecutiveBlocks 20			# Time should be less than
 TheLatenciesNodes 10						# The latency Nodes less than 
 #####################################################################
 random.seed 1234567890
 network.size SIZE
-simulation.endtime CYCLES*CYCLE							# tell that when the simulation when to stop
+simulation.endtime TOTALCYCLES							# tell that when the simulation when to stop
 simulation.logtime CYCLE
 						
 ################### protocols ===========================
@@ -28,8 +30,8 @@ simulation.logtime CYCLE
 protocol.link peersim.core.IdleProtocol					# generate link nodes neighbor
 
 protocol.urt weightedTransportTinyCoin
-protocol.urt.mindelay (CYCLE*MINDELAY)/100
-protocol.urt.maxdelay (CYCLE*MAXDELAY)/100
+protocol.urt.mindelay MINDELAY
+protocol.urt.maxdelay MAXDELAY
 protocol.urt.deplayNodes TheLatenciesNodes
 
 protocol.tr UnreliableTransport
@@ -45,7 +47,7 @@ protocol.tinyProtocol.transport tr
 ################### initialization ======================
 # 
 init.rndlink WireKOut										# random connections
-init.rndlink.k 1											# degree of random connection of nodes 
+init.rndlink.k DEGREE											# degree of random connection of nodes 
 init.rndlink.protocol link									# link indicate to the protocol above
 
 init.initTiny InitTinyCoin									# call init
@@ -75,5 +77,5 @@ control.oracle.delayBlockTime TimeGenerationConsecutiveBlocks	# time per block
 # Observer to write the number of Fork and Time
 control.obser observerTinyCoin
 control.obser.protocol tinyProtocol
-control.obser.step CYCLES										# time call observer
+control.obser.step OBSERVERCYCLES										# time call observer
 
