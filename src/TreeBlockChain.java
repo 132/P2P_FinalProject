@@ -8,7 +8,7 @@ import javax.swing.text.AsyncBoxView.ChildLocator;
 
 import java.util.Set;
 
-public class TreeBlockChain {
+public class TreeBlockChain implements Cloneable {
 	
 	ArrayList<Block> data;
 	
@@ -18,9 +18,16 @@ public class TreeBlockChain {
 	ArrayList<TreeBlockChain> children = new ArrayList<>();
 	
 	//public ArrayList<BranchBlockChain> TreeBC;
-	public TreeBlockChain(TreeBlockChain in) {
-		this.data = in.data;
-		this.children = in.children;
+	public TreeBlockChain (TreeBlockChain in) {
+		this.data = new ArrayList<>(in.data);
+		this.previousSize = in.previousSize;
+		this.children = new ArrayList<>(in.children);
+		this.previousBlock = in.previousBlock;
+	}
+	
+	@Override
+	public TreeBlockChain clone() {
+		return this;
 	}
 	
 	public TreeBlockChain(ArrayList<Block> in) {
@@ -45,9 +52,10 @@ public class TreeBlockChain {
 		for(int i=0;i<data.size();i++) {
 			System.out.println("The BlockID: " + data.get(i).ID + " MinerID: " + data.get(i).MinerID + " PreviousID: " + data.get(i).previousID);
 		}
-System.out.println("Children: " + children.size());
+System.out.println("The number of Children: " + children.size());
 		if(!children.isEmpty()) {
 			for(int i =0; i<children.size();i++) {
+System.out.println("Children: " + i );
 				children.get(i).getAllNode();
 			}
 		}
@@ -73,20 +81,23 @@ System.out.println("Children: " + children.size());
 			
 			if(children.size() == 0 && data.get(data.size()-1).ID != in.previousID ) {
 				for(int i=0; i<data.size();i++) {
-					if(data.get(i).ID == in.previousID && data.get(i+1).previousID == data.get(i).ID) {
+					if(data.get(i).ID == in.previousID && data.get(i).ID == data.get(i+1).previousID) {
 						splitAndAddChildren(in, data.get(i+1));
 						positionSplit = i+1;
 					}
 				}
 				// just only split and add block again
+				ArrayList<Block> temp2Delete = new ArrayList<>();
 				for(int i=0; i < children.size();i++) {
 					for(int j=positionSplit; j<data.size(); j++) {
 						if(children.get(i).data.get(children.get(i).data.size()-1).ID == data.get(j).previousID) {
 							children.get(i).data.add(data.get(j));
-							data.remove(data.get(j));
+							temp2Delete.add(data.get(j));
 						}
 					}
 				}
+				for(int k=0;k<temp2Delete.size();k++)
+					data.remove(temp2Delete.get(k));
 			
 			// in case of adding a new Block to middle => create new Tree
 			} else if (children.size() != 0 && data.get(data.size()-1).ID != in.previousID) {
@@ -99,7 +110,7 @@ System.out.println("Number Of Children: " + children.size());
 				for(int i=0; i<data.size();i++) {
 					if(data.get(i).ID == in.previousID && data.get(i+1).previousID == data.get(i).ID) {
 						splitAndAddChildren(in, data.get(i+1));
-						positionSplit = i+1;
+						positionSplit = i+2;
 					}
 				}
 				
@@ -216,17 +227,22 @@ System.out.println("Found the tree 2 add with ID: " + findTree2Add.data.get(find
 	
 	
 	
-	public void addChildrenQueue(ArrayList<TreeBlockChain> in, Integer MaxNodeSize, TreeBlockChain LastMaxNode) {
-		for(TreeBlockChain chil : children) {
-			// set the previous size to children before adding
-			chil.setPreviousSize(getCurrentSize());
-			in.add(chil);
-			// check the size of children to assign again the max
-			if(chil.getCurrentSize() > MaxNodeSize) {
-				MaxNodeSize = chil.getCurrentSize();
-				LastMaxNode = chil;
+	public TreeBlockChain addChildrenQueue(ArrayList<TreeBlockChain> in, Integer MaxNodeSize, TreeBlockChain LastMaxNode) {
+		if(children.size() >0 ) {
+			for(int i=0;i<children.size();i++) {
+				// set the previous size to children before adding			
+				children.get(i).setPreviousSize(getCurrentSize());
+System.out.println("Tree check the size "+ children.get(i).data.get(0).ID + " " + children.get(i).getCurrentSize() + " max " + MaxNodeSize);
+				in.add(children.get(i));
+				// check the size of children to assign again the max
+				if(children.get(i).getCurrentSize() >= MaxNodeSize) {
+					MaxNodeSize = children.get(i).getCurrentSize();
+					LastMaxNode = children.get(i);
+				}
+				children.get(i).addChildrenQueue(in, MaxNodeSize, LastMaxNode);
 			}
 		}
+		return LastMaxNode;
 	}
 	
 	public boolean equals(TreeBlockChain in) {
@@ -281,7 +297,7 @@ System.out.println("Exist Block True => false" + data.get(0).ID);
 		} else {
 			in++;
 			for(TreeBlockChain child : children) {
-				in += child.getTheNumberOfFork(in);
+				child.getTheNumberOfFork(in);
 			}
 		}
 		return in;
@@ -315,18 +331,27 @@ System.out.println("Exist Block True => false" + data.get(0).ID);
 		return out;
 	}
 	
-	public boolean containBlockID(int pID) {
-		for(int i=0;i<data.size();i++) {
-			if(data.get(i).ID == pID) {
+	public boolean containPreviousID(int previousID) {
+		if(containBlockIDCurrentTree(previousID))
+					return true;
+		else 
+			if(existChildren())
+				for(int i=0;i<children.size();i++)
+					if(children.get(i).containPreviousID(previousID))
+						return true;
+		return false;
+	}
+	
+	public boolean containBlockIDCurrentTree(int pID) {
+		for(int i=0;i<data.size();i++)
+			if(data.get(i).ID == pID)
 				return true;
-			}
-		}
 		return false;
 	}
 	
 	// return the Tree which contain the Block
 	public TreeBlockChain getTheTreeContainPreBlock(Block newBlock) {
-		if(containBlockID(newBlock.previousID)){
+		if(containBlockIDCurrentTree(newBlock.previousID)){
 			return this;
 		} else {
 			for(int i=0;i<children.size();i++) {
@@ -337,6 +362,8 @@ System.out.println("Exist Block True => false" + data.get(0).ID);
 		}
 		return null;
 	}
+	
+
 /*	public void removeChildrenQueue(ArrayList<TreeBlockChain> in, Integer MaxNodeSize) {
 		// remove node which is less than the maximum one and not existing children
 		for(TreeBlockChain subQ : in) {

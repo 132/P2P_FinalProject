@@ -19,7 +19,9 @@ public class protocolTinyCoin extends SingleValueHolder implements CDProtocol, E
 	String kindOfMiner  = "";
 	boolean chosenMinerByOracle;
 	MainBlockChain publicBlockChain;
-	MainBlockChain tempPublicBlockChain;
+	//ArrayList<MainBlockChain> tempPublicBlockChain = new ArrayList<>();
+	
+	ArrayList<Block> tempBlockChain = new ArrayList<>();
 	// it should be in case this is a selfish
 	MainBlockChain privateBlockChain;
 	Integer privateBranchLen;
@@ -66,7 +68,7 @@ System.out.println("Node is sent: " + node.getID());
 			// add a new transaction to the TransPool
 			
 			if(isSelfish) {
-				if(!TransPool.containsValue(transactionMessage) && !publicBlockChain.containTransaction(transactionMessage) && !privateBlockChain.containTransaction(transactionMessage)) {
+				if(!TransPool.containsValue(transactionMessage) && !publicBlockChain.containTransaction(transactionMessage) && !privateBlockChain.containTransaction(transactionMessage) && checkTempBlockChain(transactionMessage) > 0) {
 					this.TransPool.put(transactionMessage.IDtrans, transactionMessage);
 
 					Linkable linkable = (Linkable) node.getProtocol(FastConfig.getLinkable(pid));
@@ -77,7 +79,7 @@ System.out.println("Node is sent: " + node.getID());
 					}
 				}
 			} else {
-				if(!TransPool.containsValue(transactionMessage) && !publicBlockChain.containTransaction(transactionMessage)) {//&& !privateBlockChain.containTransaction(transactionMessage)) {	// need to insert the conditions for satisfying
+				if(!TransPool.containsValue(transactionMessage) && !publicBlockChain.containTransaction(transactionMessage) && checkTempBlockChain(transactionMessage) > 0) {//&& !privateBlockChain.containTransaction(transactionMessage)) {	// need to insert the conditions for satisfying
 				// if(!public_blockchains.contains(t)&&!containedIntoPrivateChain(t)&&this.UTXO.putIfAbsent(t.identifier,t)==null)
 				// check the transaction existing public vs private
 					this.TransPool.put(transactionMessage.IDtrans, transactionMessage);
@@ -100,7 +102,7 @@ System.out.println("Node is sent: " + node.getID());
 	
 			// remove transactions in case of block of private or block of public
 //			if(!protocolBlockMiner.isSelfish)
-				TransPool.keySet().removeAll(BlockMessage.Trans.keySet());
+			TransPool.keySet().removeAll(BlockMessage.Trans.keySet());
 			//else if(protocolBlockMiner.isSelfish)
 			//	privateTransPool.keySet().removeAll(BlockMessage.Trans.keySet());
 				
@@ -116,29 +118,33 @@ System.out.println("Node is sent: " + node.getID());
 				// in case of selfish it will stop the block from the honest and transfer their block
 				Integer DeltaPrev = privateBlockChain.getSize() - publicBlockChain.getSize();
 				// append new block to public chain
-System.out.println("Node is Selfish: " + this.ID);				
-				publicBlockChain.addCreatedBlock(BlockMessage);
-				
+System.out.println("Node is Selfish: " + this.ID);		
+				// add the public block later
+				//publicBlockChain.addReceviedBlock(BlockMessage);
 				// need to check about trans exsiting or not in block will be published
+System.out.println("DeltaPrev: " + DeltaPrev);
 				if(DeltaPrev==0) {
 					// honest win
+System.out.println("Deltaprev ==0 ");					
 					privateBlockChain = publicBlockChain;
 					privateBranchLen = 0;
 				} else if(DeltaPrev == 1 ) {
+System.out.println("Deltaprev == 1 ");					
 					// same length -> try the luck
 					publishLastBlock(node, pid);
 				} else if(DeltaPrev == 2) {
+System.out.println("Deltaprev ==2 ");					
 					// pool more than 1 so publish it immediately
 					pulishAll2Public(node, pid);
 					privateBranchLen = 0;
-				} else {
+				} else if(DeltaPrev > 2){
+System.out.println("Deltaprev == else > 2 ");					
 					// Pool leads more than 1 block
 					publishFirstBlock(node, pid);
 				} 
 			}
 			// receiver is the honest nodes and normal nodes
 			// check the block is existed before or not
-			
 			
 System.out.println("Node is received: " + this.ID + " Block ID: " + BlockMessage.ID + " MinerID of Block: " + BlockMessage.MinerID);
 System.out.println("======================Before add new Block===============================================================================================");
@@ -155,13 +161,41 @@ System.out.println("--------------------------- end Block in publicChain ");
 
 			// need to check the exist of Block in 2 chain
 System.out.println("Check the condition " + publicBlockChain.containBlock(BlockMessage));
-			if(publicBlockChain.containBlock(BlockMessage) == false) {
-System.out.println("Not existing in the publicChain");
+			if(publicBlockChain.containBlock(BlockMessage) == false && !tempBlockChain.contains(BlockMessage)) {
+System.out.println("Not existing in the publicChain and tempChain");
+				
 				// add to publicBlockChain or tempBlockChain
-				//addBlock(BlockMessage);		
-				publicBlockChain.addReceviedBlock(BlockMessage);
+				// check the previous Block
+				if(publicBlockChain.containBlock(BlockMessage.previousID)) {
+					
+					publicBlockChain.addReceviedBlock(BlockMessage);
+					// check if there are some Block in buffer
+					// add blocks to the new one
 				
-				
+					if(tempBlockChain.size() > 0) {
+System.out.println("The # of tempBlockChain: " + tempBlockChain.size());							
+						publishInTempBlockChain(BlockMessage);
+					}
+					
+						//publishTempBlockChain(BlockMessage, node, pid);
+						
+				} else {
+					// public Block Chain does not have the previous Block of the new Block
+					// if the temp is empty or 
+					//int positionTreefornewBlock = containTheBlockTempBC(BlockMessage);
+System.out.println("The previous Block does not exsits");
+					//if(tempBlockChain.size() == 0){
+System.out.println("Create the new tempPublicChain");						
+						tempBlockChain.add(BlockMessage);
+				/*		MainBlockChain newMainTree = new MainBlockChain();
+						newMainTree.mainTree.data.add(BlockMessage);
+						tempPublicBlockChain.add(newMainTree);
+					} else {
+System.out.println("Add to temp PublicBlock Chain because of pID: " + BlockMessage.previousID);						
+						tempPublicBlockChain.get(positionTreefornewBlock).addReceviedBlock(BlockMessage);
+					}
+				*/		
+				}
 				Linkable linkable = (Linkable) node.getProtocol(FastConfig.getLinkable(pid));
 				if(linkable.degree()>0) {
 					Transport transport = ((Transport)node.getProtocol(FastConfig.getTransport(pid)));					
@@ -175,7 +209,8 @@ System.out.println("Not existing in the publicChain");
 System.out.println("=====================================================================================================================");
 publicBlockChain.mainTree.getAllNode();
 System.out.println("=====================================================================================================================");						
-			
+for(int i=0;i<tempBlockChain.size();i++)
+	System.out.println("Temp Block Chain: " + tempBlockChain.get(i).ID);
 			// // it can be considered that if one block in the longest chain, it can be sent
 			
 			// forward the block to its neighbor
@@ -186,13 +221,12 @@ System.out.println("============================================================
 			}
 		}
 		
-//	}
+
 
 	// CD protocol
 	public void nextCycle(Node node, int pid) {
 		// create a transaction 
 		Node sender = node;
-		
 		Node receiver = Network.get(CommonState.r.nextInt(Network.size()-1));;
 		int amountOfSendding = CommonState.r.nextInt(10);
 
@@ -205,11 +239,6 @@ System.out.println("============================================================
 			// Add newTransaction to TransPool
 			this.TransPool.put(IDtransaction, newTransaction);
 
-			//if(this.isSelfish) {
-			//	System.out.println("Checked the selfish 2 ");
-			//	this.privateTransPool.put(IDtransaction, newTransaction);
-			//}
-			
 			// Add and minus amountOfSendding
 			this.Amount = Amount - amountOfSendding;
 			protocolTinyCoin protocolReceiver = (protocolTinyCoin) receiver.getProtocol(pid);
@@ -223,11 +252,8 @@ System.out.println("============================================================
 				for(int i=0;i<link2NeighborOfSender.degree();i++) {
 
 					transport.send(node, link2NeighborOfSender.getNeighbor(i),newTransaction, pid);
-//System.out.println("A transaction in NextCycle protocol to Node: " + ((protocolTinyCoin) link2NeighborOfSender.getNeighbor(i).getProtocol(pid)).ID);
 				}
-
 			}
-			//newTransaction.sent = true;
 		}
 		// in case, a chosen miner
 		if(chosenMinerByOracle) {
@@ -241,38 +267,57 @@ System.out.println("Node is chosen " + ID + "-----------------------------------
 			Integer DeltaPrev = 0; 
 			if(isSelfish) {
 				DeltaPrev = privateBlockChain.getSize() - publicBlockChain.getSize();
-			}
+System.out.println("Delta Prev and privateLen: " + DeltaPrev + ", " + privateBranchLen);				
+				if(DeltaPrev <= 0 && privateBranchLen ==0) {
+					privateBlockChain = new MainBlockChain(publicBlockChain);
+System.out.println("Assign the Public to Private +++++++++++++++++++");					
+				}
 				
-			// that means private chain is winning  => create and add a new block into PRIVATE BLOCK CHAIN
-			if(DeltaPrev > 0 && isSelfish) {
 				// Selfish will do
 				// if there is not a block belonging private chain before
 				
 				//Integer DeltaPrev = privateBlockChain.getSize() - publicBlockChain.getSize();
-				
+	
 				// create a block and add to the private chain
 				// append new block to private chain
 				Integer preBlockID = privateBlockChain.getPreviousBlockID();
 				Integer minerID = this.ID;
 				//Block newBlock = new Block(preBlockID, minerID, privateTransPool);
+System.out.println("The # of Transactions for new Block: " + TransPool.size());
 System.out.println("The Previous Block: " + preBlockID);				
-				Block newBlock = new Block(preBlockID, minerID, TransPool);
-
+				Block newBlock = new Block(preBlockID, minerID, new Hashtable<>(TransPool));
+				newBlock.privateBlock = true;
 				// remove in TransPool transactions belonging in new Block
 				removeTransactionBlock(TransPool, newBlock);
 				
 				// because It should be turned to false for next cycle
 				this.chosenMinerByOracle = false;
-				
+System.out.println("++++++++++++++++++++++++++ Public Chain Before Private Chain added ++++++++++++++++++");
+publicBlockChain.mainTree.getAllNode();
+System.out.println("++++++++++++++++++++++++++ ++++ ++++++++++++++++++");				
 				// add this new Block to private Chain
+System.out.println("++++++++++++++++++++++++++ Private Chain Before Private Chain added ++++++++++++++++++");
+privateBlockChain.mainTree.getAllNode();
+System.out.println("++++++++++++++++++++++++++ ++++ ++++++++++++++++++");
+				
 				privateBlockChain.addCreatedBlock(newBlock);
 				privateBranchLen++;
+				
+System.out.println("++++++++++++++++++++++++++ Private Chain After Private Chain added ++++++++++++++++++");
+privateBlockChain.mainTree.getAllNode();
+System.out.println("++++++++++++++++++++++++++ ++++ ++++++++++++++++++");
+
+System.out.println("++++++++++++++++++++++++++ Public Chain After Private Chain added ++++++++++++++++++");
+publicBlockChain.mainTree.getAllNode();
+System.out.println("++++++++++++++++++++++++++ ++++ ++++++++++++++++++");
+				//  this part belong to the algorithm but we can  ????????????????????
 				
 				// need to check the condition because of the DeltaPrev == 0 and privateBranchlen == 2
 				// that means if the privateChain > publicChain 2 Blocks publish these 2 blocks
 				if(DeltaPrev == 0 && privateBranchLen == 2) {
 					// publish all the private Chain
 					// send to all neighbors 
+System.out.println("Publish the all the privateChain");					
 					pulishAll2Public(node, pid);
 					privateBranchLen = 0;
 				}
@@ -280,44 +325,21 @@ System.out.println("The Previous Block: " + preBlockID);
 				// mine the new head of private chain
 				// only send to other selfish to sync the private chain or pool
 				
-			/*	Linkable link2NeighborOfSender = (Linkable) sender.getProtocol(FastConfig.getLinkable(pid));
-				if(link2NeighborOfSender.degree()>0) {
-					Transport transport = ((Transport)sender.getProtocol(FastConfig.getTransport(pid)));
-					for(int i=0;i<link2NeighborOfSender.degree();i++) {
-						// check for all neighbor if it is the selfish this node will send the newBlock
-						Node neighborSelfishMiner = link2NeighborOfSender.getNeighbor(i);
-						protocolTinyCoin protocolNeighborSelfishMiner = (protocolTinyCoin) neighborSelfishMiner.getProtocol(pid);
-						if(protocolNeighborSelfishMiner.isSelfish)
-							transport.send(sender, link2NeighborOfSender.getNeighbor(i),newBlock, pid);
-					} 
-				}	
-				privateTransPool = new Hashtable<String, Transaction>();
-				*/
-				
 			} else {
-				// (DeltaPrev == 0 && isSelfish) 
 				// this is selfish but the privateChain did not have any other block => behave like the hosnest block
-				
 				// honest Miner
 				Integer preBlockID = publicBlockChain.getPreviousBlockID(); // find the previous Block	.......................
 				Integer minerID = this.ID;
-				Block newBlock = new Block(preBlockID, minerID, TransPool);
+System.out.println("The # of Transactions for new Block: " + TransPool.size());				
+				Block newBlock = new Block(preBlockID, minerID, new Hashtable<>(TransPool));
 
 				// add more money to the miner
 				this.Amount = Amount + newBlock.getAllReward();
-				
 				// add this new Block to BLOCKCHAIN
 				publicBlockChain.addCreatedBlock(newBlock);
-				
 				removeTransactionBlock(TransPool, newBlock);
-				
 				//because It should be turned to false for next cycle
 				this.chosenMinerByOracle = false;
-				
-				if(isSelfish) {
-					privateBlockChain = publicBlockChain;
-				}
-				
 				// send the block to its neighbor
 				// get the longest chain in block chain and send to its neighbor
 				Linkable link2NeighborOfSender = (Linkable) sender.getProtocol(FastConfig.getLinkable(pid));
@@ -348,8 +370,7 @@ System.out.println("A honest Block in NextCycle protocol to Node: " + ((protocol
 	public void pulishAll2Public(Node node, int pid) {
 		// publish all blocks on private chain
 		// calculate again the reward from the miners
-		
-		while(!privateBlockChain.isEmpty()) {
+		while(privateBranchLen > 0) {
 			publishFirstBlock(node, pid);
 		}
 	}
@@ -364,6 +385,7 @@ System.out.println("A honest Block in NextCycle protocol to Node: " + ((protocol
 			this.Amount = Amount + theLastBlock.getAllReward();
 		
 		publicBlockChain.addReceviedBlock(theLastBlock);
+		this.privateBranchLen--;
 		
 		// propagation the block to neighbors
 		Linkable linkNeighbor = (Linkable) node.getProtocol(FastConfig.getLinkable(pid));
@@ -378,14 +400,23 @@ System.out.println("A selfish Block in  protocol to Node: " + ((protocolTinyCoin
 	}
 	
 	public void publishFirstBlock(Node node, int pid) {
+System.out.println("============================ private Block Chain before Take first ======================");
+privateBlockChain.mainTree.getAllNode();
+System.out.println("=========================================================");
 		// take the first block
-		Block theFirstBlock = privateBlockChain.popTheFirstBlock();
-		
+System.out.println("The len of privateBlockChain " + privateBranchLen);
+		Block theFirstBlock = privateBlockChain.popTheFirstBlock(privateBranchLen);
+System.out.println("The first Block Miner ID: " + theFirstBlock.MinerID + " Block ID: " + theFirstBlock.ID);		
+
+System.out.println("============================ private Block Chain after Take first ======================");
+privateBlockChain.mainTree.getAllNode();
+System.out.println("=========================================================");
 		// add more money to the miner
 		if(this.ID == theFirstBlock.MinerID)
 			this.Amount = Amount + theFirstBlock.getAllReward();
 		
 		publicBlockChain.addReceviedBlock(theFirstBlock);
+		this.privateBranchLen--;
 		
 		// propagation the block to neighbors
 		Linkable linkNeighbor = (Linkable) node.getProtocol(FastConfig.getLinkable(pid));
@@ -417,7 +448,64 @@ System.out.println("A selfish Block in protocol to Node: " + ((protocolTinyCoin)
 
 	public void change2Selfish() {
 		this.isSelfish = true;
-		this.privateBlockChain = publicBlockChain;
-		privateBranchLen = 0;
+		this.privateBlockChain = new MainBlockChain();
+		this.privateBranchLen = 0;
 	}
+
+	public void publishInTempBlockChain(Block in) {
+		for(int i=0;i<tempBlockChain.size();i++) {
+			if(tempBlockChain.get(i).previousID == in.ID) {
+				Block b = tempBlockChain.get(i);
+				publicBlockChain.addReceviedBlock(b);
+				tempBlockChain.remove(i);
+				i--;
+				publishInTempBlockChain(b);
+				
+			}
+		}
+	}
+	
+	public int checkTempBlockChain(Transaction in) {
+		for(int i=0;i < tempBlockChain.size();i++)
+				if(tempBlockChain.get(i).checkTrans(in))
+					return 1;
+		return 0;
+	}
+/*
+	public int containTheBlockTempBC(Block in) {
+		for(int i=0;i<tempPublicBlockChain.size();i++) {
+			if(tempPublicBlockChain.get(i).containBlock(in))
+				return i;
+		}
+		return -1;
+	}
+	
+	private void publishTempBlockChain(Block blockMessage, Node node, int pid) {
+		
+		for(int i=0;i<tempPublicBlockChain.size();i++) {
+			if(blockMessage.ID == tempPublicBlockChain.get(i).mainTree.data.get(0).previousID) {
+				addTempTree2PublicChain(i);
+				
+			}
+		}
+		
+	}
+	
+	public void addTempTree2PublicChain(int position) {
+		for(int i=0;i<tempPublicBlockChain.get(position); i++) {
+			
+		}
+	}
+*/
+	public void send2Neighbor(Block b, Node node, int pid) {
+		Linkable link2NeighborOfSender = (Linkable) node.getProtocol(FastConfig.getLinkable(pid));
+		if(link2NeighborOfSender.degree()>0) {
+			Transport transport = ((Transport)node.getProtocol(FastConfig.getTransport(pid)));
+			for(int i=0;i<link2NeighborOfSender.degree();i++) {
+				transport.send(node, link2NeighborOfSender.getNeighbor(i),b, pid);
+			}
+	
+		}
+	}
+	
 }

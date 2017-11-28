@@ -99,8 +99,6 @@ public class InitTinyCoin implements Control{
 		System.out.println("# of arrayGPU: " + arrayGPUMiner.size());
 		System.out.println("# of arrayCPU: " + arrayCPUMiner.size());
 		
-		do{System.out.println("trideptrai");}
-		while(NoOfSelfishMiner == 9 && 1 != 1);
 		
 		// calculation the number of each kind of miner for selfish miners
 		int noOfCPUSelfish = 0;
@@ -110,6 +108,7 @@ public class InitTinyCoin implements Control{
 		Integer currNoOfSelfishMiner = 0;
 		// range of power should be from NoOfSelfishMiner to 3*NoOfSelfishMiner
 		if(NoOfSelfishMiner <= selfishPower && selfishPower <= 3*NoOfSelfishMiner) {
+System.out.println("Check the size of each kind of miners");			
 			do {
 				
 				/*
@@ -134,16 +133,14 @@ public class InitTinyCoin implements Control{
 				currNoOfSelfishMiner = currNoOfSelfishMiner - noOfCPUSelfish;
 				*/
 				
-///////////////////////////////////////////////////////////////////////
-				// keep these code
-			//	noOfCPUSelfish = CommonState.r.nextInt(arrayCPUMiner.size());
-			//	noOfGPUSelfish = CommonState.r.nextInt(arrayGPUMiner.size());
-			//	noOfFPGA_ASICSelfish = CommonState.r.nextInt(arrayFPGA_ASICMiner.size());
+
+				noOfCPUSelfish = CommonState.r.nextInt(arrayCPUMiner.size()+1);
+				noOfGPUSelfish = CommonState.r.nextInt(arrayGPUMiner.size()+1);
+				noOfFPGA_ASICSelfish = CommonState.r.nextInt(arrayFPGA_ASICMiner.size()+1);
 				
-			//	currNoOfSelfishMiner = noOfCPUSelfish + noOfGPUSelfish + noOfFPGA_ASICSelfish;
+				currNoOfSelfishMiner = noOfCPUSelfish + noOfGPUSelfish + noOfFPGA_ASICSelfish;
 				
-			//	currSelfishPower = noOfCPUSelfish + noOfGPUSelfish*2 + noOfFPGA_ASICSelfish*3;
-				break;
+				currSelfishPower = noOfCPUSelfish + noOfGPUSelfish*2 + noOfFPGA_ASICSelfish*3;
 				
 			}while(currSelfishPower != selfishPower || currNoOfSelfishMiner != NoOfSelfishMiner);
 			
@@ -183,13 +180,13 @@ public class InitTinyCoin implements Control{
 		}
 		*/
 		
-		System.out.println("# of FPGA: " + noOfFPGA_ASICSelfish);
-		System.out.println("# of GPU: " + noOfGPUSelfish);
-		System.out.println("# of CPU: " + noOfCPUSelfish);
+		System.out.println("# selfish of FPGA: " + noOfFPGA_ASICSelfish);
+		System.out.println("# selfish of GPU: " + noOfGPUSelfish);
+		System.out.println("# selfish of CPU: " + noOfCPUSelfish);
 		
-		noOfFPGA_ASICSelfish = 1;
-		noOfGPUSelfish = 0;
-		noOfCPUSelfish = 0;
+//		noOfFPGA_ASICSelfish = 1;
+//		noOfGPUSelfish = 0;
+//		noOfCPUSelfish = 0;
 		
 		for(int i=0;i<noOfFPGA_ASICSelfish;i++) {
 			int position = CommonState.r.nextInt(arrayFPGA_ASICMiner.size());

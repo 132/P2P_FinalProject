@@ -2,18 +2,28 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Set;
 
-public class MainBlockChain {
+public class MainBlockChain  implements Cloneable{
 	
 	TreeBlockChain mainTree;
 	Integer theNumberOfFork =0;
 	Integer theSumOfTime=0;
 //	ArrayList<Block> headBlock;
 
+	public MainBlockChain(MainBlockChain in) {
+		this.mainTree = new TreeBlockChain(in.mainTree.clone());
+		this.theNumberOfFork = in.theNumberOfFork;
+		this.theSumOfTime = in.theSumOfTime;
+	}
+	
+	@Override
+	public MainBlockChain clone() {
+		return this;
+	}
 
 	public MainBlockChain() {
-		ArrayList<Block> in = new ArrayList<Block>();
-		//in.add(new Block(0, 0, null));
-		this.mainTree = new TreeBlockChain(in);
+//		ArrayList<Block> in = new ArrayList<Block>();
+
+		this.mainTree = new TreeBlockChain( new ArrayList<Block>());
 		this.mainTree.setPreviousSize(0);
 	}
 	
@@ -41,14 +51,20 @@ System.out.println("------------------------------------------------------------
 		// add node to Queue
 		ArrayList<TreeBlockChain> checkedNode = new ArrayList<>();
 		
-		mainTree.addChildrenQueue(checkedNode, MaxNodeSize, LastMaxNode);
+		
+//		for(int i=0;i<mainTree.children.size();i++) {
+//			mainTree.children.get(i).setPreviousSize(mainTree.getCurrentSize());
+//		}
+	
+		LastMaxNode = mainTree.addChildrenQueue(checkedNode, MaxNodeSize, LastMaxNode);
 		
 		// calculate the max one
-		while(checkedNode.size()>0) {
-			TreeBlockChain currentNode = checkedNode.get(0);
-			checkedNode.remove(currentNode);
-			currentNode.addChildrenQueue(checkedNode, MaxNodeSize, LastMaxNode);
-		}
+//		while(checkedNode.size()>0) {
+//			TreeBlockChain currentNode = checkedNode.get(0);
+//			checkedNode.remove(currentNode);
+//			currentNode.addChildrenQueue(checkedNode, MaxNodeSize, LastMaxNode);
+//		}
+System.out.println("Max Node Size: " + MaxNodeSize);		
 		return LastMaxNode;
 	}	
 
@@ -56,20 +72,38 @@ System.out.println("------------------------------------------------------------
 		return (mainTree.data.size() > 0) ? false : true;
 	}
 	
-	public Block popTheFirstBlock() {
-		Block out = mainTree.data.get(0);
-		mainTree.data.remove(0);
-		return out;
+	
+	public Block popTheFirstBlock(int privateLen) {
+		TreeBlockChain privateChainTree = getLongestPath();
+		if(privateChainTree.data.get(privateChainTree.data.size()-privateLen).privateBlock) {
+			return privateChainTree.data.get(privateChainTree.data.size()-privateLen);
+		} else {
+			System.out.println("Do not have The First Block in Private");
+			return null;
+		}
 	}
+	
 	public Block popTheLastBlock() {
-		Block out = mainTree.data.get(mainTree.data.size()-1);
-		mainTree.data.remove(mainTree.data.size()-1);
-		return out;
+		TreeBlockChain privateChainTree = getLongestPath();
+		if(privateChainTree.data.get(privateChainTree.data.size()-1).privateBlock) {
+			return privateChainTree.data.get(privateChainTree.data.size()-1);
+		} else {
+			System.out.println("Do not have The last Block in Private");
+			return null;
+		}
+		//Block out = mainTree.data.get(mainTree.data.size()-1);
+		//mainTree.data.remove(mainTree.data.size()-1);
+		//return out;
 	}
+	
 	
 	public boolean containBlock(Block in) {
 		// check the whole chain -> traverse the tree
 		return mainTree.containBlock(in);
+	}
+	
+	public boolean containBlock(int previousBlock) {
+		return mainTree.containPreviousID(previousBlock);
 	}
 	
 	
@@ -84,7 +118,8 @@ System.out.println("------------------------------------------------------------
 	}
 	
 	public int getSize() {
-		return mainTree.getCurrentSize();
+		TreeBlockChain addThisTree = getLongestPath();
+		return addThisTree.getCurrentSize();
 	}
 
 
@@ -103,6 +138,10 @@ System.out.println("------------------------------------------------------------
 		theSumOfTime += mainTree.getTheTimeOfForkSolving(theSumOfTime);
 		return theSumOfTime;
 	}
+
+	public void assignMainTree(TreeBlockChain tempTreeBlockChain) {
+		this.mainTree = tempTreeBlockChain;
+	}
 	
-	
+
 }

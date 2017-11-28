@@ -16,7 +16,7 @@ public class Block {
 	
 	Hashtable<String, Transaction> Trans;			// ListOfTrans
 	
-	boolean sent = false;
+	boolean privateBlock = false;
 	
 	public Block(Integer currID, Integer pID, Integer mID, Hashtable<String, Transaction> T) {
 		this.MinerID = mID;

@@ -56,8 +56,8 @@ public class observerTinyCoin implements Control{
 			theTimeOfSolving += protocolCurrNode.theTimeOfSolving;
 		}
 		
+		//System.out.println("The Number of Fork: " + theNumberOfFork / Network.size() + " The number of Time: " + theTimeOfSolving/ Network.size());
 		System.out.println("The Number of Fork: " + theNumberOfFork + " The number of Time: " + theTimeOfSolving);
-		
 		lines.add("\nThe number of Fork in BlockChain: " + theNumberOfFork);
 		lines.add("\nThe time to solve the Fork in BlockChain: " + theTimeOfSolving);
   		try {
