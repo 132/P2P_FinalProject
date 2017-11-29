@@ -1,0 +1,158 @@
+
+%%%%%%%%%%%%%%%%%%%%%%% file typeinst.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is the LaTeX source for the instructions to authors using
+% the LaTeX document class 'llncs.cls' for contributions to
+% the Lecture Notes in Computer Sciences series.
+% http://www.springer.com/lncs       Springer Heidelberg 2006/05/04
+%
+% It may be used as a template for your own input - copy it
+% to a new file with a new name and use it as the basis
+% for your article.
+%
+% NB: the document class 'llncs' has its own and detailed documentation, see
+% ftp://ftp.springer.de/data/pubftp/pub/tex/latex/llncs/latex2e/llncsdoc.pdf
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\documentclass[runningheads,a4paper]{llncs}
+
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{listings}
+%\lstset{
+%	numbers=left
+%	language=Java
+%	frame=single,
+%	breaklines=true,
+	%postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+%}
+\renewcommand{\lstlistingname}{Code}
+
+\captionsetup{compatibility=false}
+
+\usepackage{url}
+\urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
+\urldef{\mailsb}\path|anna.kramer, leonie.kunz, christine.reiss, nicole.sator,|
+\urldef{\mailsc}\path|erika.siebert-cole, peter.strasser, lncs}@springer.com|    
+\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+\noindent\keywordname\enspace\ignorespaces#1}
+
+\begin{document}
+
+\mainmatter  
+
+
+\newpage
+\tableofcontents
+\newpage
+
+\abstract{
+% what we have done with the dataset and project
+	This assignment represents about exploiting WebGraph~\cite{boldi2004webgraph}, one of graph frameworks, for discovering Bitcoin user's graph through some statistic tasks and experiments including degree distributions, finding Strongly Connected Components and a random Bread First Search.
+	% These experiments are compared with others on different dataset. 
+	%The results show that......
+} 
+
+\section{Introduction}
+\label{Intro}
+
+% Describe that dataset and generally about sections
+	
+\section{Block chain}
+\label{BC}
+% describe and explain steps about preprocessing data 
+% discuss about the result
+
+\section{Selfish miner and private block chain}
+\label{CA}
+
+% general about the algorithm
+% discuss about the result
+
+
+
+
+\section{The simulation}
+\label{TS}
+
+
+
+\section{Experiments}
+\label{Exper}
+
+\section{Conclusion}
+\label{Con}
+The assignment exploits WebGraph framework to solve some statistics tasks and experiments from the paper~\cite{broder2000graph}. With these works, the framework shows their useful techniques and tools which simply exploits large graphs.
+
+\section{Ackowledgements}
+I would like to show my gratitude to Prof. Laura Ricci about lessons.
+Finally, I would also like to extend my thank to \LaTeX $ $ and Springer for this format.
+
+\bibliography{Ref}
+\bibliographystyle{plain}
+
+\end{document}
+
+\iffals
+\begin{figure*}[t!]
+	\centering
+	\begin{subfigure}[b]{0.6\textwidth}
+		%\centering
+		\includegraphics[scale = 0.6]{image/Unipi_Image}
+		\caption{In-degree distribution with an exponent 4.5}
+	\end{subfigure}
+	\\
+	\begin{subfigure}[b]{0.6\textwidth}
+		%\centering
+		\includegraphics[scale = 0.6]{image/Unipi_Image}
+		\caption{Out-degree distribution with an exponent 5.5}
+	\end{subfigure}
+	\caption{In-degree and Out-degree distributions}
+		\label{Fig:Distri}
+\end{figure*}
+\textbf{Second Part}:
+\begin{figure*}[t!]
+	\centering
+	\begin{subfigure}[b]{0.6\textwidth}
+		%\centering
+		\includegraphics[scale = 0.6]{image/Unipi_Image}
+		\caption{Size of WCC distribution with an exponent 10 of power law}
+	\end{subfigure}
+	\\
+	\begin{subfigure}[b]{0.6\textwidth}
+		%\centering
+		\includegraphics[scale = 0.6]{image/Unipi_Image}
+		\caption{Size of SCC distribution with an exponent 9 of power law}
+	\end{subfigure}
+
+	\caption{Size of WCC and SCC distributions}
+		\label{Fig:WCC_SCC}
+\end{figure*}
+
+\begin{figure*}[t!]
+
+	\centering
+	\begin{subfigure}[b]{0.6\textwidth}
+		%\centering
+		\includegraphics[scale = 0.6]{image/Unipi_Image}
+		\caption{Experiment with BFS on forward direction}
+	\end{subfigure}
+	\\
+	\begin{subfigure}[b]{0.6\textwidth}
+		%\centering
+		\includegraphics[scale = 0.6]{image/Unipi_Image}
+		\caption{Experiment with BFS on backward direction}
+	\end{subfigure}
+	\\
+	\begin{subfigure}[b]{0.6\textwidth}
+		%\centering
+		\includegraphics[scale = 0.6]{image/Unipi_Image}
+		\caption{Experiment with BFS on both directions}
+	\end{subfigure}
+	\caption{Experiments of BFS algorithm on three kinds of graph}
+		\label{Fig:BFS}
+\end{figure*}
