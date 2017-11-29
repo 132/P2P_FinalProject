@@ -118,11 +118,12 @@ System.out.println("Node is sent: " + node.getID());
 				// in case of selfish it will stop the block from the honest and transfer their block
 				Integer DeltaPrev = privateBlockChain.getSize() - publicBlockChain.getSize();
 				// append new block to public chain
-System.out.println("Node is Selfish: " + this.ID);		
+				
+System.out.println("Node is Selfish: " + this.ID + " +++++++++++++++");		
 				// add the public block later
 				//publicBlockChain.addReceviedBlock(BlockMessage);
 				// need to check about trans exsiting or not in block will be published
-System.out.println("DeltaPrev: " + DeltaPrev);
+System.out.println("DeltaPrev: " + DeltaPrev + " the len of Private " + privateBranchLen);
 				if(DeltaPrev==0) {
 					// honest win
 System.out.println("Deltaprev ==0 ");					
@@ -167,8 +168,13 @@ System.out.println("Not existing in the publicChain and tempChain");
 				// add to publicBlockChain or tempBlockChain
 				// check the previous Block
 				if(publicBlockChain.containBlock(BlockMessage.previousID)) {
-					
 					publicBlockChain.addReceviedBlock(BlockMessage);
+					
+					// the privateBlockChain can add a new Block in case it has the previousID of the new Block
+					// in case of initialization the privateBlockChain cannot add a new Block
+					// but it should add a new block in case of storing a long Block more than publicBlockChain
+					if(this.isSelfish && privateBlockChain.containBlock(BlockMessage.previousID))
+						privateBlockChain.addReceviedBlock(BlockMessage);
 					// check if there are some Block in buffer
 					// add blocks to the new one
 				
@@ -405,7 +411,11 @@ privateBlockChain.mainTree.getAllNode();
 System.out.println("=========================================================");
 		// take the first block
 System.out.println("The len of privateBlockChain " + privateBranchLen);
+if(privateBranchLen <= 0)
+	System.out.println("Mistake cannot take the first Block $$$$$$$$$$$$$");
 		Block theFirstBlock = privateBlockChain.popTheFirstBlock(privateBranchLen);
+if(publicBlockChain.containBlock(theFirstBlock))
+	System.out.println("Error the private Chain publish a new Block in Public Block Chain 00000000000000000000000000000000000000");
 System.out.println("The first Block Miner ID: " + theFirstBlock.MinerID + " Block ID: " + theFirstBlock.ID);		
 
 System.out.println("============================ private Block Chain after Take first ======================");
@@ -448,7 +458,7 @@ System.out.println("A selfish Block in protocol to Node: " + ((protocolTinyCoin)
 
 	public void change2Selfish() {
 		this.isSelfish = true;
-		this.privateBlockChain = new MainBlockChain();
+		this.privateBlockChain = new MainBlockChain(publicBlockChain);
 		this.privateBranchLen = 0;
 	}
 

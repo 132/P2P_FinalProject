@@ -38,6 +38,10 @@ public class weightedTransportTinyCoin implements Transport{
 			delay = (long) ((delay + ((Block) msg).getLatency() > maxDelay)? maxDelay : delay + ((Block) msg).getLatency());
 			//delay += ((Block) msg).getLatency();
 			
+			// assume fix a delay
+			//delay = 30;
+System.out.println("The delay: " + delay + " trans size: " + ((Block) msg).Trans.size());
+			
 		}
 		EDSimulator.add( delay, msg, dest, pid);
 	}

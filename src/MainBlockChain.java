@@ -64,7 +64,7 @@ System.out.println("------------------------------------------------------------
 //			checkedNode.remove(currentNode);
 //			currentNode.addChildrenQueue(checkedNode, MaxNodeSize, LastMaxNode);
 //		}
-System.out.println("Max Node Size: " + MaxNodeSize);		
+System.out.println("Max Node start ID: " + LastMaxNode.data.get(0).ID);		
 		return LastMaxNode;
 	}	
 

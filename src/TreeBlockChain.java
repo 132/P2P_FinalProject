@@ -21,7 +21,15 @@ public class TreeBlockChain implements Cloneable {
 	public TreeBlockChain (TreeBlockChain in) {
 		this.data = new ArrayList<>(in.data);
 		this.previousSize = in.previousSize;
-		this.children = new ArrayList<>(in.children);
+		if(in.children.size() > 0) {
+			this.children = new ArrayList<>();
+			for(int i=0;i<in.children.size();i++) {
+				//this.children.set(i, new TreeBlockChain(in.children.get(i)));
+				this.children.add(new TreeBlockChain(in.children.get(i)));
+			}
+		}
+		else 
+			this.children = new ArrayList<>(in.children);
 		this.previousBlock = in.previousBlock;
 	}
 	
@@ -102,22 +110,21 @@ System.out.println("Children: " + i );
 			// in case of adding a new Block to middle => create new Tree
 			} else if (children.size() != 0 && data.get(data.size()-1).ID != in.previousID) {
 				
-System.out.println("Number Of Children: " + children.size());				
-				ArrayList<TreeBlockChain> tempChildren = children;
-				for(TreeBlockChain child : tempChildren)
-					children.remove(child);
+System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ Number Of Children: " + children.size());				
+				ArrayList<TreeBlockChain> tempChildren = new ArrayList<>(children);
+				children = new ArrayList<>();
 				
 				for(int i=0; i<data.size();i++) {
 					if(data.get(i).ID == in.previousID && data.get(i+1).previousID == data.get(i).ID) {
 						splitAndAddChildren(in, data.get(i+1));
-						positionSplit = i+2;
+						//positionSplit = i+1;
 					}
 				}
-				
+System.out.println("The number of new Children: " + children.size());				
 				for(int i=0; i < children.size();i++) {
-
 					for(int j=0; j<data.size(); j++) {
 						if(children.get(i).data.get(children.get(i).data.size()-1).ID == data.get(j).previousID) {
+							
 							children.get(i).data.add(data.get(j));
 							data.remove(data.get(j));
 							positionSplit = i;
@@ -125,8 +132,15 @@ System.out.println("Number Of Children: " + children.size());
 					}
 					
 				}
-System.out.println("The position of Children: " + positionSplit);				
-				children.get(positionSplit).children = tempChildren;
+for(int k=0; k< data.size();k++)
+	System.out.println("Block ID in data: " + data.get(k).ID);
+System.out.println("The position of Children: " + positionSplit);	
+				
+				for(int i=0;i<children.size();i++) {
+					if(children.get(i).data.get(children.get(i).data.size()-1).ID == tempChildren.get(0).data.get(0).previousID)
+						children.get(positionSplit).children = new ArrayList<>(tempChildren);
+				}
+				
 				// split with childreen
 			}
 		}
@@ -238,8 +252,23 @@ System.out.println("Tree check the size "+ children.get(i).data.get(0).ID + " " 
 				if(children.get(i).getCurrentSize() >= MaxNodeSize) {
 					MaxNodeSize = children.get(i).getCurrentSize();
 					LastMaxNode = children.get(i);
+					in.add(children.get(i));
 				}
 				children.get(i).addChildrenQueue(in, MaxNodeSize, LastMaxNode);
+			}
+		} else if(this.getCurrentSize() >= MaxNodeSize) {
+			MaxNodeSize = this.getCurrentSize();
+			LastMaxNode = this;
+			in.add(this);
+		}
+		
+		if(in.size() > 0) {
+			int maxSize = 1;
+			for(int i=0;i<in.size();i++) {
+				if(in.get(i).getCurrentSize() >= maxSize) {
+					maxSize = in.get(i).getCurrentSize();
+					LastMaxNode = in.get(i);
+				}
 			}
 		}
 		return LastMaxNode;
@@ -295,7 +324,7 @@ System.out.println("Exist Block True => false" + data.get(0).ID);
 		if(children.size() == 0) {
 			return in;
 		} else {
-			in++;
+			in += children.size();
 			for(TreeBlockChain child : children) {
 				child.getTheNumberOfFork(in);
 			}
@@ -307,14 +336,19 @@ System.out.println("Exist Block True => false" + data.get(0).ID);
 		if(children.size() == 0) {
 			return theSumOfTime;
 		} else {
-			Integer minBlockList = data.size();
+			Integer maxBlockList = data.size();
 			for(TreeBlockChain child : children) {
-				if(child.data.size() < minBlockList)
-					minBlockList = child.data.size();
+				if(child.data.size() > maxBlockList)
+					maxBlockList = child.data.size();
 			}
-			theSumOfTime += minBlockList;
+			
+			boolean flag = true;
 			for(TreeBlockChain child : children) {
-				theSumOfTime += child.getTheTimeOfForkSolving(theSumOfTime);
+				if(child.data.size() == maxBlockList && flag) {
+					theSumOfTime += child.getTheTimeOfForkSolving(theSumOfTime);
+					flag = false;
+				}
+					theSumOfTime += child.data.size();
 			}
 		}
 		return theSumOfTime;
@@ -362,6 +396,7 @@ System.out.println("Exist Block True => false" + data.get(0).ID);
 		}
 		return null;
 	}
+	
 	
 
 /*	public void removeChildrenQueue(ArrayList<TreeBlockChain> in, Integer MaxNodeSize) {
