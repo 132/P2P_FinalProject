@@ -74,9 +74,6 @@ public class observerTinyCoin implements Control{
   			// TODO Auto-generated catch block
   			e.printStackTrace();
   		}
-	  	//	currStep = 0;
-	//	} else
-	//		currStep++;
 		return false;
 	}
 

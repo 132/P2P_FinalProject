@@ -21,7 +21,7 @@ public class protocolTinyCoin extends SingleValueHolder implements CDProtocol, E
 	MainBlockChain publicBlockChain;
 	//ArrayList<MainBlockChain> tempPublicBlockChain = new ArrayList<>();
 	
-	ArrayList<Block> tempBlockChain = new ArrayList<>();
+	ArrayList<Block> tempBlockChain;
 	// it should be in case this is a selfish
 	MainBlockChain privateBlockChain;
 	Integer privateBranchLen;
@@ -114,7 +114,7 @@ System.out.println("Node is sent: " + node.getID());
 			// check the receiver is the selfish or honest
 			
 			//		keep for selfish
-			if(isSelfish && !publicBlockChain.containBlock(BlockMessage)) {	//	&& !protocolPrevMinerBlock.isSelfish
+			if(isSelfish && !publicBlockChain.containBlock(BlockMessage) && !tempBlockChain.contains(BlockMessage)) {	//	&& !protocolPrevMinerBlock.isSelfish
 				// in case of selfish it will stop the block from the honest and transfer their block
 				Integer DeltaPrev = privateBlockChain.getSize() - publicBlockChain.getSize();
 				// append new block to public chain
@@ -126,7 +126,7 @@ System.out.println("DeltaPrev: " + DeltaPrev);
 				if(DeltaPrev==0) {
 					// honest win
 System.out.println("Deltaprev ==0 ");					
-					privateBlockChain = publicBlockChain;
+					privateBlockChain = new MainBlockChain(publicBlockChain);
 					privateBranchLen = 0;
 				} else if(DeltaPrev == 1 ) {
 System.out.println("Deltaprev == 1 ");					
@@ -201,7 +201,7 @@ System.out.println("Add to temp PublicBlock Chain because of pID: " + BlockMessa
 					Transport transport = ((Transport)node.getProtocol(FastConfig.getTransport(pid)));					
 					for(int i=0;i<linkable.degree();i++) {
 						transport.send(node, linkable.getNeighbor(i),event , pid);
-						System.out.println("Propagation the new Block to Node: " + ((protocolTinyCoin) linkable.getNeighbor(i).getProtocol(pid)).ID + " from: " + this.ID);
+						System.out.println("Propagation the new Block to Node: " + ((protocolTinyCoin) linkable.getNeighbor(i).getProtocol(pid)).ID + " from: " + this.ID + " BlockID: " + BlockMessage.ID);
 					}
 				}
 								
@@ -210,7 +210,7 @@ System.out.println("============================================================
 publicBlockChain.mainTree.getAllNode();
 System.out.println("=====================================================================================================================");						
 for(int i=0;i<tempBlockChain.size();i++)
-	System.out.println("Temp Block Chain: " + tempBlockChain.get(i).ID);
+	System.out.println("Temp Block Chain with ID: " + tempBlockChain.get(i).ID + " The Block considering: " + this.ID);
 			// // it can be considered that if one block in the longest chain, it can be sent
 			
 			// forward the block to its neighbor
@@ -457,10 +457,9 @@ System.out.println("A selfish Block in protocol to Node: " + ((protocolTinyCoin)
 			if(tempBlockChain.get(i).previousID == in.ID) {
 				Block b = tempBlockChain.get(i);
 				publicBlockChain.addReceviedBlock(b);
-				tempBlockChain.remove(i);
+				tempBlockChain.remove(b);
 				i--;
 				publishInTempBlockChain(b);
-				
 			}
 		}
 	}

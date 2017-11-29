@@ -57,6 +57,7 @@ public class InitTinyCoin implements Control{
 			// protocolOfCurrentNode.kindOfMiner = null;
 			protocolOfCurrentNode.chosenMinerByOracle = false;
 			protocolOfCurrentNode.publicBlockChain = new MainBlockChain();
+			protocolOfCurrentNode.tempBlockChain = new ArrayList<>();
 			//protocolOfCurrentNode.publicBlockChain.addBlock(new Block(0, 0, null));
 			protocolOfCurrentNode.publicBlockChain.mainTree.data.add(new Block(0,-1,-1,new Hashtable<String, Transaction>()));
 			
