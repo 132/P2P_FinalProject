@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+
+\bibitem{eyal2014majority}
+Ittay Eyal and Emin~G{\"u}n Sirer.
+\newblock Majority is not enough: Bitcoin mining is vulnerable.
+\newblock In {\em International conference on financial cryptography and data
+  security}, pages 436--454. Springer, 2014.
+
+\bibitem{jesi2005peersim}
+Gian~Paolo Jesi.
+\newblock Peersim howto: Build a new protocol for the peersim 1.0 simulator.
+\newblock {\em Peersim. surcefge. net}, 2005.
+
+\end{thebibliography}

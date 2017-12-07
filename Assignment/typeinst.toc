@@ -1,0 +1,18 @@
+\contentsline {section}{\numberline {1}Introduction}{2}
+\contentsline {section}{\numberline {2}Selfish Miner}{2}
+\contentsline {section}{\numberline {3}Tinycoin Simulation}{4}
+\contentsline {subsection}{\numberline {3.1}The Interaction of PeerSim in Tinycoin Simulation}{4}
+\contentsline {subsubsection}{Configuration File}{4}
+\contentsline {subsubsection}{Initial Tinycoin}{5}
+\contentsline {subsubsection}{Oracle}{5}
+\contentsline {subsubsection}{Tinycoin Protocol}{5}
+\contentsline {subsubsection}{Observer of Tinycoin}{6}
+\contentsline {subsubsection}{Weighted Transport}{6}
+\contentsline {subsection}{\numberline {3.2}Block Chain Structure in Tinycoin}{6}
+\contentsline {subsubsection}{Transaction}{6}
+\contentsline {subsubsection}{Block}{6}
+\contentsline {subsubsection}{Block Chain Structure}{6}
+\contentsline {subsubsection}{Adding a New Block}{8}
+\contentsline {section}{\numberline {4}Experiments}{8}
+\contentsline {section}{\numberline {5}Conclusion}{9}
+\contentsline {section}{\numberline {6}Ackowledgements}{9}
