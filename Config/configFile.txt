@@ -1,11 +1,11 @@
-SIZE 20									    # network size
-TOTALCYCLES 400								#
-OBSERVERCYCLES 400-1
+SIZE 100								    # network size
+TOTALCYCLES 1000					#
+OBSERVERCYCLES TOTALCYCLES-1
 CYCLE 10									# 
 MINDELAY 0
 MAXDELAY 100
 DROP 0										# drop is a probability, 0<=DROP<=1
-DEGREE 1
+DEGREE 2
 ###################################################################
 #- # of selfish miners 
 #- Computational power of selfish miners 
@@ -13,8 +13,8 @@ DEGREE 1
 #- The latencies between the nodes of the TinyCoin network
 
 ThePercentSelfishMiners 30
-ComputationalPower 6						# did not implement it 
-TimeGenerationConsecutiveBlocks 20			# Time should be less than
+ComputationalPower 50						# did not implement it 
+TimeGenerationConsecutiveBlocks 50			# Time should be less than
 TheLatenciesNodes 10						# The latency Nodes less than 
 #####################################################################
 random.seed 1234567890
@@ -79,3 +79,8 @@ control.obser observerTinyCoin
 control.obser.protocol tinyProtocol
 control.obser.step OBSERVERCYCLES										# time call observer
 
+control.obser.percentageOfSelfish ThePercentSelfishMiners
+control.obser.ComputationalPower ComputationalPower				# did not implement it 
+control.obser.TimeBlocks TimeGenerationConsecutiveBlocks	# Time should be less than
+control.obser.TheLatenciesNodes TheLatenciesNodes
+control.obser.degree DEGREE
